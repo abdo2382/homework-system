@@ -5,6 +5,8 @@ const asyncHandler = require("../middleware/asyncHandler");
 
 const router = express.Router();
 
+const ALLOWED_STATUSES = ["active", "locked"];
+
 // GET /api/chapters — any approved user
 router.get(
   "/",
@@ -39,13 +41,29 @@ router.post(
   asyncHandler(async (req, res) => {
     const { title, description, order, published, image, status } = req.body;
     if (!title) return res.status(400).json({ error: "Title is required." });
+
+    // If the frontend didn't send a status, don't silently fall back to the
+    // schema default (locked). Explicitly resolve it here so the value we
+    // send is always what we intend.
+    let resolvedStatus = "active";
+    if (status !== undefined) {
+      if (!ALLOWED_STATUSES.includes(status)) {
+        return res
+          .status(400)
+          .json({
+            error: `status must be one of: ${ALLOWED_STATUSES.join(", ")}`,
+          });
+      }
+      resolvedStatus = status;
+    }
+
     const chapter = await Chapter.create({
       title,
       description,
       order: order || 0,
       published,
       image,
-      status,
+      status: resolvedStatus,
     });
     res.status(201).json(chapter);
   }),
@@ -57,8 +75,21 @@ router.put(
   requireAuth,
   requireAdmin,
   asyncHandler(async (req, res) => {
+    const { status } = req.body;
+
+    // Guard against an invalid status value overwriting a good one, and
+    // avoid blindly trusting req.body for fields we care about.
+    if (status !== undefined && !ALLOWED_STATUSES.includes(status)) {
+      return res
+        .status(400)
+        .json({
+          error: `status must be one of: ${ALLOWED_STATUSES.join(", ")}`,
+        });
+    }
+
     const chapter = await Chapter.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
+      runValidators: true,
     });
     if (!chapter) return res.status(404).json({ error: "Chapter not found." });
     res.json(chapter);
