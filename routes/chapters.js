@@ -5,7 +5,7 @@ const asyncHandler = require("../middleware/asyncHandler");
 
 const router = express.Router();
 
-const ALLOWED_STATUSES = ["active", "locked"];
+const ALLOWED_STATUSES = ["active", "pending"];
 
 // GET /api/chapters — any approved user
 router.get(
@@ -17,7 +17,15 @@ router.get(
       order: 1,
       createdAt: 1,
     });
-    res.json(chapters);
+    // Legacy documents created before the `status` field existed won't have
+    // it in the DB. Mongoose only applies schema defaults to brand-new
+    // documents, not to ones hydrated from a stored record missing the
+    // field, so normalize it here as a safety net.
+    const normalized = chapters.map((c) => {
+      if (!c.status) c.status = "active";
+      return c;
+    });
+    res.json(normalized);
   }),
 );
 
@@ -29,6 +37,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const chapter = await Chapter.findById(req.params.id);
     if (!chapter) return res.status(404).json({ error: "Chapter not found." });
+    if (!chapter.status) chapter.status = "active";
     res.json(chapter);
   }),
 );
