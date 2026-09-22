@@ -4,64 +4,80 @@
 --------------------------------------------------------------------- */
 
 const state = { user: null };
-const app = document.getElementById('app');
-const topnav = document.getElementById('topnav');
+const app = document.getElementById("app");
+const topnav = document.getElementById("topnav");
 
 /* ---------------- helpers ---------------- */
 
 function el(html) {
-  const div = document.createElement('div');
+  const div = document.createElement("div");
   div.innerHTML = html.trim();
   return div.firstElementChild;
 }
 
 function escapeHtml(str) {
-  return String(str || '').replace(/[&<>"']/g, (c) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  }[c]));
+  return String(str || "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[c],
+  );
 }
 
-function alertBox(message, kind = 'error') {
+function alertBox(message, kind = "error") {
   return `<div class="alert alert-${kind}">${escapeHtml(message)}</div>`;
 }
 
-function go(hash) { window.location.hash = hash; }
+function go(hash) {
+  window.location.hash = hash;
+}
 
 /* ---------------- nav ---------------- */
 
 function renderNav() {
-  const path = location.hash.slice(1) || '/';
+  const path = location.hash.slice(1) || "/";
   const link = (href, label) =>
-    `<a href="#${href}" class="${path === href ? 'active' : ''}">${label}</a>`;
+    `<a href="#${href}" class="${path === href ? "active" : ""}">${label}</a>`;
 
   if (!state.user) {
-    topnav.innerHTML = link('/login', 'Log in') + link('/register', 'Register');
+    topnav.innerHTML = link("/login", "Log in") + link("/register", "Register");
     return;
   }
 
-  let links = '';
-  if (state.user.role === 'admin') {
-    links += link('/admin', 'Pending') + link('/admin/content', 'Content') + link('/admin/grading', 'Grading') + link('/admin/results', 'Results');
+  let links = "";
+  if (state.user.role === "admin") {
+    links +=
+      link("/admin", "Accounts") +
+      link("/admin/content", "Content") +
+      link("/admin/grading", "Grading") +
+      link("/admin/results", "Results");
   } else {
-    links += link('/chapters', 'Chapters') + link('/results', 'My results');
+    links += link("/chapters", "Chapters") + link("/results", "My results");
   }
-  links += link('/profile', 'Profile');
+  links += link("/profile", "Profile");
   const avatarImg = state.user.avatar
     ? `<img src="${escapeHtml(state.user.avatar)}" class="nav-avatar" alt="" />`
     : `<span class="nav-avatar nav-avatar-empty">${escapeHtml(state.user.name.slice(0, 1).toUpperCase())}</span>`;
-  topnav.innerHTML = links + avatarImg + `<button id="logoutBtn">Log out</button>`;
-  document.getElementById('logoutBtn').onclick = () => {
+  topnav.innerHTML =
+    links + avatarImg + `<button id="logoutBtn">Log out</button>`;
+  document.getElementById("logoutBtn").onclick = () => {
     Api.clearToken();
     state.user = null;
-    go('/login');
+    go("/login");
   };
 }
 
 /* ---------------- auth views ---------------- */
 
 function viewLogin() {
-  app.innerHTML = '';
-  app.appendChild(el(`
+  app.innerHTML = "";
+  app.appendChild(
+    el(`
     <div class="view">
       <p class="eyebrow">Welcome back</p>
       <h1>Log in</h1>
@@ -75,21 +91,22 @@ function viewLogin() {
       </div>
       <p class="muted">No account yet? <a href="#/register">Register here</a> — an admin will need to approve it first.</p>
     </div>
-  `));
+  `),
+  );
 
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const alertDiv = document.getElementById('loginAlert');
-    alertDiv.innerHTML = '';
+    const alertDiv = document.getElementById("loginAlert");
+    alertDiv.innerHTML = "";
     try {
-      const data = await Api.post('/auth/login', {
-        email: fd.get('email'),
-        password: fd.get('password'),
+      const data = await Api.post("/auth/login", {
+        email: fd.get("email"),
+        password: fd.get("password"),
       });
       Api.setToken(data.token);
       state.user = data.user;
-      go(data.user.role === 'admin' ? '/admin' : '/chapters');
+      go(data.user.role === "admin" ? "/admin" : "/chapters");
       renderNav();
     } catch (err) {
       alertDiv.innerHTML = alertBox(err.message);
@@ -98,8 +115,9 @@ function viewLogin() {
 }
 
 function viewRegister() {
-  app.innerHTML = '';
-  app.appendChild(el(`
+  app.innerHTML = "";
+  app.appendChild(
+    el(`
     <div class="view">
       <p class="eyebrow">First time here</p>
       <h1>Create an account</h1>
@@ -115,23 +133,24 @@ function viewRegister() {
       </div>
       <p class="muted">Already have an account? <a href="#/login">Log in</a></p>
     </div>
-  `));
+  `),
+  );
 
-  document.getElementById('regForm').addEventListener('submit', async (e) => {
+  document.getElementById("regForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const alertDiv = document.getElementById('regAlert');
-    alertDiv.innerHTML = '';
+    const alertDiv = document.getElementById("regAlert");
+    alertDiv.innerHTML = "";
     try {
-      await Api.post('/auth/register', {
-        name: fd.get('name'),
-        email: fd.get('email'),
-        password: fd.get('password'),
-        grade: fd.get('grade'),
+      await Api.post("/auth/register", {
+        name: fd.get("name"),
+        email: fd.get("email"),
+        password: fd.get("password"),
+        grade: fd.get("grade"),
       });
       alertDiv.innerHTML = alertBox(
-        'Registration received. You can log in once an admin approves your account.',
-        'success'
+        "Registration received. You can log in once an admin approves your account.",
+        "success",
       );
       e.target.reset();
     } catch (err) {
@@ -144,24 +163,32 @@ function viewRegister() {
 
 async function viewChapters() {
   app.innerHTML = `<div class="view-wide"><h1>Chapters</h1><div id="list" class="chapter-grid"></div></div>`;
-  const list = document.getElementById('list');
+  const list = document.getElementById("list");
   try {
-    const chapters = await Api.get('/chapters');
+    const chapters = await Api.get("/chapters");
     if (!chapters.length) {
       list.innerHTML = `<div class="empty-state">No chapters have been posted yet.</div>`;
       return;
     }
-    list.innerHTML = chapters.map((c) => `
-      <a class="chapter-cover-card" href="#/chapters/${c._id}">
-        ${c.image
+    list.innerHTML = chapters
+      .map((c) => {
+        const locked = c.status !== "active";
+        const cover = c.image
           ? `<div class="chapter-cover" style="background-image:url('${escapeHtml(c.image)}')"></div>`
-          : `<div class="chapter-cover chapter-cover-empty">${escapeHtml(c.title.slice(0, 1).toUpperCase())}</div>`}
+          : `<div class="chapter-cover chapter-cover-empty">${escapeHtml(c.title.slice(0, 1).toUpperCase())}</div>`;
+        const body = `
         <div class="chapter-cover-body">
           <div class="item-title">${escapeHtml(c.title)}</div>
-          ${c.description ? `<div class="item-meta">${escapeHtml(c.description)}</div>` : ''}
-        </div>
-      </a>
-    `).join('');
+          ${c.description ? `<div class="item-meta">${escapeHtml(c.description)}</div>` : ""}
+          ${locked ? `<div class="mt-8"><span class="badge badge-pending lock-badge">🔒 Locked — not open yet</span></div>` : ""}
+        </div>`;
+
+        if (locked) {
+          return `<div class="chapter-cover-card is-locked" title="This chapter isn't open yet">${cover}${body}</div>`;
+        }
+        return `<a class="chapter-cover-card" href="#/chapters/${c._id}">${cover}${body}</a>`;
+      })
+      .join("");
   } catch (err) {
     list.innerHTML = alertBox(err.message);
   }
@@ -169,19 +196,27 @@ async function viewChapters() {
 
 async function viewLessons(chapterId) {
   app.innerHTML = `<div class="view-wide"><p class="eyebrow"><a href="#/chapters">← Chapters</a></p><h1>Lessons</h1><div id="list" class="list"></div></div>`;
-  const list = document.getElementById('list');
+  const list = document.getElementById("list");
   try {
-    const lessons = await Api.get('/lessons?chapter=' + chapterId);
+    const lessons = await Api.get("/lessons?chapter=" + chapterId);
     if (!lessons.length) {
       list.innerHTML = `<div class="empty-state">No lessons in this chapter yet.</div>`;
       return;
     }
-    list.innerHTML = lessons.map((l) => `
-      <a class="item-link" href="#/lessons/${l._id}">
+    list.innerHTML = lessons
+      .map((l) => {
+        const locked = l.status !== "active";
+        const body = `
         <div class="item-title">${escapeHtml(l.title)}</div>
-        ${l.description ? `<div class="item-meta">${escapeHtml(l.description)}</div>` : ''}
-      </a>
-    `).join('');
+        ${l.description ? `<div class="item-meta">${escapeHtml(l.description)}</div>` : ""}
+        ${locked ? `<div class="mt-8"><span class="badge badge-pending lock-badge">🔒 Locked — not open yet</span></div>` : ""}
+      `;
+        if (locked) {
+          return `<div class="item-link is-locked" title="This lesson isn't open yet">${body}</div>`;
+        }
+        return `<a class="item-link" href="#/lessons/${l._id}">${body}</a>`;
+      })
+      .join("");
   } catch (err) {
     list.innerHTML = alertBox(err.message);
   }
@@ -189,30 +224,34 @@ async function viewLessons(chapterId) {
 
 async function viewHomeworkList(lessonId) {
   app.innerHTML = `<div class="view-wide"><p class="eyebrow"><a href="#/chapters">← Chapters</a></p><h1>Homework</h1><div id="list" class="list"></div></div>`;
-  const list = document.getElementById('list');
+  const list = document.getElementById("list");
   try {
     const [homeworks, mine] = await Promise.all([
-      Api.get('/homework?lesson=' + lessonId),
-      Api.get('/submissions/mine'),
+      Api.get("/homework?lesson=" + lessonId),
+      Api.get("/submissions/mine"),
     ]);
-    const doneIds = new Set(mine.map((s) => s.homework && (s.homework._id || s.homework)));
+    const doneIds = new Set(
+      mine.map((s) => s.homework && (s.homework._id || s.homework)),
+    );
     if (!homeworks.length) {
       list.innerHTML = `<div class="empty-state">No homework posted for this lesson yet.</div>`;
       return;
     }
-    list.innerHTML = homeworks.map((h) => {
-      const done = doneIds.has(h._id);
-      return `
+    list.innerHTML = homeworks
+      .map((h) => {
+        const done = doneIds.has(h._id);
+        return `
         <a class="item-link" href="#/homework/${h._id}">
           <div class="card-row">
             <div>
               <div class="item-title">${escapeHtml(h.title)}</div>
-              <div class="item-meta">${h.questions.length} question${h.questions.length === 1 ? '' : 's'} · ${h.totalPoints} point${h.totalPoints === 1 ? '' : 's'}</div>
+              <div class="item-meta">${h.questions.length} question${h.questions.length === 1 ? "" : "s"} · ${h.totalPoints} point${h.totalPoints === 1 ? "" : "s"}</div>
             </div>
-            ${done ? '<span class="badge badge-approved">Submitted</span>' : ''}
+            ${done ? '<span class="badge badge-approved">Submitted</span>' : ""}
           </div>
         </a>`;
-    }).join('');
+      })
+      .join("");
   } catch (err) {
     list.innerHTML = alertBox(err.message);
   }
@@ -220,30 +259,44 @@ async function viewHomeworkList(lessonId) {
 
 async function viewHomeworkTake(homeworkId) {
   app.innerHTML = `<div class="view"><div id="content">Loading…</div></div>`;
-  const content = document.getElementById('content');
+  const content = document.getElementById("content");
 
   try {
-    const mine = await Api.get('/submissions/mine');
-    const existing = mine.find((s) => (s.homework._id || s.homework) === homeworkId);
+    const mine = await Api.get("/submissions/mine");
+    const existing = mine.find(
+      (s) => (s.homework._id || s.homework) === homeworkId,
+    );
     if (existing) {
-      return renderSubmissionResult(await Api.get('/submissions/' + existing._id));
+      return renderSubmissionResult(
+        await Api.get("/submissions/" + existing._id),
+      );
     }
 
     const [hw, draft] = await Promise.all([
-      Api.get('/homework/' + homeworkId),
-      Api.get('/drafts/' + homeworkId).catch(() => null),
+      Api.get("/homework/" + homeworkId),
+      Api.get("/drafts/" + homeworkId).catch(() => null),
     ]);
-    const savedAnswers = new Map((draft && draft.answers ? draft.answers : []).map((a) => [String(a.question), a.answerText]));
-    const savedNotes = new Map((draft && draft.answers ? draft.answers : []).map((a) => [String(a.question), a.studentNote]));
+    const savedAnswers = new Map(
+      (draft && draft.answers ? draft.answers : []).map((a) => [
+        String(a.question),
+        a.answerText,
+      ]),
+    );
+    const savedNotes = new Map(
+      (draft && draft.answers ? draft.answers : []).map((a) => [
+        String(a.question),
+        a.studentNote,
+      ]),
+    );
 
     content.innerHTML = `
       <p class="eyebrow"><a href="#/chapters">← Chapters</a></p>
       <h1>${escapeHtml(hw.title)}</h1>
-      ${hw.instructions ? `<p>${escapeHtml(hw.instructions)}</p>` : ''}
-      ${draft ? `<div class="alert alert-success">Picking up where you left off — your saved answers are filled in below.</div>` : ''}
+      ${hw.instructions ? `<p>${escapeHtml(hw.instructions)}</p>` : ""}
+      ${draft ? `<div class="alert alert-success">Picking up where you left off — your saved answers are filled in below.</div>` : ""}
       <div id="hwAlert"></div>
       <form id="hwForm" class="card">
-        ${hw.questions.map((q, i) => renderQuestionInput(q, i, savedAnswers.get(String(q._id)), savedNotes.get(String(q._id)))).join('')}
+        ${hw.questions.map((q, i) => renderQuestionInput(q, i, savedAnswers.get(String(q._id)), savedNotes.get(String(q._id)))).join("")}
         <div class="mt-16" style="display:flex;gap:10px;">
           <button class="btn btn-secondary" type="button" id="saveProgressBtn">Save progress</button>
           <button class="btn btn-accent" type="submit">Submit homework</button>
@@ -252,34 +305,47 @@ async function viewHomeworkTake(homeworkId) {
     `;
 
     function collectAnswers() {
-      const fd = new FormData(document.getElementById('hwForm'));
+      const fd = new FormData(document.getElementById("hwForm"));
       return hw.questions.map((q) => ({
         questionId: q._id,
-        answerText: fd.get('q_' + q._id) || '',
-        studentNote: fd.get('note_' + q._id) || '',
+        answerText: fd.get("q_" + q._id) || "",
+        studentNote: fd.get("note_" + q._id) || "",
       }));
     }
 
-    document.getElementById('saveProgressBtn').addEventListener('click', async () => {
-      const alertDiv = document.getElementById('hwAlert');
-      try {
-        await Api.put('/drafts/' + homeworkId, { answers: collectAnswers() });
-        alertDiv.innerHTML = alertBox('Progress saved — come back anytime to finish.', 'success');
-      } catch (err) {
-        alertDiv.innerHTML = alertBox(err.message);
-      }
-    });
+    document
+      .getElementById("saveProgressBtn")
+      .addEventListener("click", async () => {
+        const alertDiv = document.getElementById("hwAlert");
+        try {
+          await Api.put("/drafts/" + homeworkId, { answers: collectAnswers() });
+          alertDiv.innerHTML = alertBox(
+            "Progress saved — come back anytime to finish.",
+            "success",
+          );
+        } catch (err) {
+          alertDiv.innerHTML = alertBox(err.message);
+        }
+      });
 
-    document.getElementById('hwForm').addEventListener('submit', async (e) => {
+    document.getElementById("hwForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const answers = collectAnswers();
       const unanswered = answers.filter((a) => !a.answerText.trim()).length;
-      if (unanswered > 0 && !confirm(`${unanswered} question(s) are still blank. Submit anyway? You can't change answers after submitting.`)) {
+      if (
+        unanswered > 0 &&
+        !confirm(
+          `${unanswered} question(s) are still blank. Submit anyway? You can't change answers after submitting.`,
+        )
+      ) {
         return;
       }
-      const alertDiv = document.getElementById('hwAlert');
+      const alertDiv = document.getElementById("hwAlert");
       try {
-        const submission = await Api.post('/submissions', { homework: hw._id, answers });
+        const submission = await Api.post("/submissions", {
+          homework: hw._id,
+          answers,
+        });
         renderSubmissionResult(submission, hw);
       } catch (err) {
         alertDiv.innerHTML = alertBox(err.message);
@@ -291,21 +357,25 @@ async function viewHomeworkTake(homeworkId) {
 }
 
 function renderQuestionInput(q, i, savedValue, savedNote) {
-  const saved = savedValue || '';
-  const note = savedNote || '';
-  const points = `<span class="question-points">${q.points} pt${q.points === 1 ? '' : 's'}</span>`;
-  let input = '';
-  if (q.type === 'mcq') {
-    input = q.options.map((opt) => `
+  const saved = savedValue || "";
+  const note = savedNote || "";
+  const points = `<span class="question-points">${q.points} pt${q.points === 1 ? "" : "s"}</span>`;
+  let input = "";
+  if (q.type === "mcq") {
+    input = q.options
+      .map(
+        (opt) => `
       <label class="option-row">
-        <input type="radio" name="q_${q._id}" value="${escapeHtml(opt)}" ${opt === saved ? 'checked' : ''} />
+        <input type="radio" name="q_${q._id}" value="${escapeHtml(opt)}" ${opt === saved ? "checked" : ""} />
         ${escapeHtml(opt)}
-      </label>`).join('');
-  } else if (q.type === 'true_false') {
+      </label>`,
+      )
+      .join("");
+  } else if (q.type === "true_false") {
     input = `
-      <label class="option-row"><input type="radio" name="q_${q._id}" value="true" ${saved === 'true' ? 'checked' : ''} /> True</label>
-      <label class="option-row"><input type="radio" name="q_${q._id}" value="false" ${saved === 'false' ? 'checked' : ''} /> False</label>`;
-  } else if (q.type === 'short_answer') {
+      <label class="option-row"><input type="radio" name="q_${q._id}" value="true" ${saved === "true" ? "checked" : ""} /> True</label>
+      <label class="option-row"><input type="radio" name="q_${q._id}" value="false" ${saved === "false" ? "checked" : ""} /> False</label>`;
+  } else if (q.type === "short_answer") {
     input = `<div class="field"><input type="text" name="q_${q._id}" value="${escapeHtml(saved)}" /></div>`;
   } else {
     input = `<div class="field"><textarea name="q_${q._id}" placeholder="Write your answer…">${escapeHtml(saved)}</textarea></div>`;
@@ -325,37 +395,46 @@ function renderQuestionInput(q, i, savedValue, savedNote) {
 }
 
 function renderSubmissionResult(submission, hwFallback) {
-  const hw = submission.homework && submission.homework.questions ? submission.homework : hwFallback;
-  const scoreLine = submission.status === 'graded'
-    ? `<strong>${submission.autoScore + submission.manualScore} / ${submission.totalPoints}</strong> points`
-    : `Auto-graded so far: <strong>${submission.autoScore} / ${submission.totalPoints}</strong> — an essay question is waiting for the teacher's review.`;
+  const hw =
+    submission.homework && submission.homework.questions
+      ? submission.homework
+      : hwFallback;
+  const scoreLine =
+    submission.status === "graded"
+      ? `<strong>${submission.autoScore + submission.manualScore} / ${submission.totalPoints}</strong> points`
+      : `Auto-graded so far: <strong>${submission.autoScore} / ${submission.totalPoints}</strong> — an essay question is waiting for the teacher's review.`;
 
-  const rows = (hw && hw.questions ? hw.questions : []).map((q) => {
-    const ans = submission.answers.find((a) => String(a.question) === String(q._id));
-    if (!ans) return '';
-    let mark = '';
-    if (ans.type === 'essay') {
-      mark = ans.isCorrect === null
-        ? `<div class="result-mark result-pending">Waiting for teacher review</div>`
-        : `<div class="result-mark result-correct">Graded: ${ans.pointsAwarded}/${q.points}${ans.teacherFeedback ? ' — ' + escapeHtml(ans.teacherFeedback) : ''}</div>`;
-    } else {
-      mark = ans.isCorrect
-        ? `<div class="result-mark result-correct">Correct (${ans.pointsAwarded}/${q.points})</div>`
-        : `<div class="result-mark result-incorrect">Incorrect (0/${q.points})${q.correctAnswer ? ' — correct answer: ' + escapeHtml(q.correctAnswer) : ''}</div>`;
-    }
-    return `
+  const rows = (hw && hw.questions ? hw.questions : [])
+    .map((q) => {
+      const ans = submission.answers.find(
+        (a) => String(a.question) === String(q._id),
+      );
+      if (!ans) return "";
+      let mark = "";
+      if (ans.type === "essay") {
+        mark =
+          ans.isCorrect === null
+            ? `<div class="result-mark result-pending">Waiting for teacher review</div>`
+            : `<div class="result-mark result-correct">Graded: ${ans.pointsAwarded}/${q.points}${ans.teacherFeedback ? " — " + escapeHtml(ans.teacherFeedback) : ""}</div>`;
+      } else {
+        mark = ans.isCorrect
+          ? `<div class="result-mark result-correct">Correct (${ans.pointsAwarded}/${q.points})</div>`
+          : `<div class="result-mark result-incorrect">Incorrect (0/${q.points})${q.correctAnswer ? " — correct answer: " + escapeHtml(q.correctAnswer) : ""}</div>`;
+      }
+      return `
       <div class="question">
         <div class="question-head"><strong>${escapeHtml(q.text)}</strong></div>
-        <div class="muted">Your answer: ${escapeHtml(ans.answerText) || '<em>(blank)</em>'}</div>
+        <div class="muted">Your answer: ${escapeHtml(ans.answerText) || "<em>(blank)</em>"}</div>
         ${mark}
-        ${ans.studentNote ? `<div class="student-note-box">📝 Your note: ${escapeHtml(ans.studentNote)}</div>` : ''}
+        ${ans.studentNote ? `<div class="student-note-box">📝 Your note: ${escapeHtml(ans.studentNote)}</div>` : ""}
       </div>`;
-  }).join('');
+    })
+    .join("");
 
   app.innerHTML = `
     <div class="view">
       <p class="eyebrow"><a href="#/chapters">← Chapters</a></p>
-      <h1>${hw ? escapeHtml(hw.title) : 'Submission'}</h1>
+      <h1>${hw ? escapeHtml(hw.title) : "Submission"}</h1>
       <div class="card">
         <p>${scoreLine}</p>
         ${rows}
@@ -365,66 +444,136 @@ function renderSubmissionResult(submission, hwFallback) {
 
 async function viewResults() {
   app.innerHTML = `<div class="view-wide"><h1>My results</h1><div id="list" class="list"></div></div>`;
-  const list = document.getElementById('list');
+  const list = document.getElementById("list");
   try {
-    const subs = await Api.get('/submissions/mine');
+    const subs = await Api.get("/submissions/mine");
     if (!subs.length) {
       list.innerHTML = `<div class="empty-state">You haven't submitted any homework yet.</div>`;
       return;
     }
-    list.innerHTML = subs.map((s) => `
+    list.innerHTML = subs
+      .map(
+        (s) => `
       <a class="item-link" href="#/homework/${s.homework._id || s.homework}">
         <div class="card-row">
-          <div class="item-title">${escapeHtml(s.homework.title || 'Homework')}</div>
-          <span class="badge badge-${s.status === 'graded' ? 'graded' : 'pending'}">
-            ${s.status === 'graded' ? (s.autoScore + s.manualScore) + '/' + s.totalPoints : 'Pending review'}
+          <div class="item-title">${escapeHtml(s.homework.title || "Homework")}</div>
+          <span class="badge badge-${s.status === "graded" ? "graded" : "pending"}">
+            ${s.status === "graded" ? s.autoScore + s.manualScore + "/" + s.totalPoints : "Pending review"}
           </span>
         </div>
-      </a>`).join('');
+      </a>`,
+      )
+      .join("");
   } catch (err) {
     list.innerHTML = alertBox(err.message);
   }
 }
 
-/* ---------------- admin: pending users ---------------- */
+/* ---------------- admin: accounts ---------------- */
 
 async function viewAdminPending() {
-  app.innerHTML = `<div class="view-wide"><h1>Pending registrations</h1><div id="list" class="list"></div></div>`;
-  const list = document.getElementById('list');
-  await loadPendingUsers(list);
+  app.innerHTML = `
+    <div class="view-wide">
+      <h1>Accounts</h1>
+      <p class="muted">Accounts marked <strong>Active</strong> can log in and use the site. <strong>Pending</strong> and <strong>Not Active</strong> accounts cannot, until you approve them.</p>
+      <div class="card">
+        <div class="field" style="max-width:260px">
+          <label>Show</label>
+          <select id="accountFilter">
+            <option value="pending">Pending review</option>
+            <option value="approved">Active</option>
+            <option value="rejected">Not active</option>
+            <option value="all">All accounts</option>
+          </select>
+        </div>
+      </div>
+      <div id="list" class="list mt-16"></div>
+    </div>`;
+  const list = document.getElementById("list");
+  const filter = document.getElementById("accountFilter");
+  filter.addEventListener("change", () => loadPendingUsers(list, filter.value));
+  await loadPendingUsers(list, filter.value);
 }
 
-async function loadPendingUsers(list) {
+function accountStatusBadge(status) {
+  if (status === "approved")
+    return '<span class="badge badge-approved">Active</span>';
+  if (status === "rejected")
+    return '<span class="badge badge-rejected">Not active</span>';
+  return '<span class="badge badge-pending">Pending review</span>';
+}
+
+async function loadPendingUsers(list, status) {
+  status = status || "pending";
   try {
-    const users = await Api.get('/admin/users?status=pending');
+    const users = await Api.get("/admin/users?status=" + status);
     if (!users.length) {
-      list.innerHTML = `<div class="empty-state">No pending registrations right now.</div>`;
+      list.innerHTML = `<div class="empty-state">No accounts in this list.</div>`;
       return;
     }
-    list.innerHTML = users.map((u) => `
-      <div class="card card-row">
+    list.innerHTML = users
+      .map(
+        (u) => `
+      <div class="card card-row" data-user-row="${u._id}">
         <div>
-          <div class="item-title">${escapeHtml(u.name)}</div>
-          <div class="item-meta">${escapeHtml(u.email)}${u.grade ? ' · ' + escapeHtml(u.grade) : ''}</div>
+          <div class="item-title">${escapeHtml(u.name)} ${accountStatusBadge(u.status)}</div>
+          <div class="item-meta">${escapeHtml(u.email)}${u.grade ? " · " + escapeHtml(u.grade) : ""}</div>
+          <div class="item-meta reset-result" id="reset-${u._id}"></div>
         </div>
-        <div>
-          <button class="btn btn-secondary btn-small" data-action="reject" data-id="${u._id}">Reject</button>
-          <button class="btn btn-accent btn-small" data-action="approve" data-id="${u._id}">Approve</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">
+          ${u.status !== "approved" ? `<button class="btn btn-accent btn-small" data-action="approve" data-id="${u._id}">Activate</button>` : ""}
+          ${u.status !== "rejected" ? `<button class="btn btn-secondary btn-small" data-action="reject" data-id="${u._id}">Deactivate</button>` : ""}
+          <button class="btn btn-secondary btn-small" data-action="reset-password" data-id="${u._id}">Reset password</button>
         </div>
-      </div>`).join('');
+      </div>`,
+      )
+      .join("");
 
-    list.querySelectorAll('button[data-action]').forEach((btn) => {
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        try {
-          await Api.post(`/admin/users/${btn.dataset.id}/${btn.dataset.action}`);
-          await loadPendingUsers(list);
-        } catch (err) {
-          alert(err.message);
-          btn.disabled = false;
-        }
+    list
+      .querySelectorAll(
+        'button[data-action="approve"], button[data-action="reject"]',
+      )
+      .forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          btn.disabled = true;
+          try {
+            await Api.post(
+              `/admin/users/${btn.dataset.id}/${btn.dataset.action}`,
+            );
+            await loadPendingUsers(list, status);
+          } catch (err) {
+            alert(err.message);
+            btn.disabled = false;
+          }
+        });
       });
-    });
+
+    list
+      .querySelectorAll('button[data-action="reset-password"]')
+      .forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (
+            !confirm(
+              "Generate a new temporary password for this student? Their old password will stop working immediately.",
+            )
+          )
+            return;
+          btn.disabled = true;
+          try {
+            const result = await Api.post(
+              `/admin/users/${btn.dataset.id}/reset-password`,
+            );
+            const box = document.getElementById("reset-" + btn.dataset.id);
+            if (box) {
+              box.innerHTML = `<span class="badge badge-approved">New password: ${escapeHtml(result.temporaryPassword)}</span> <span class="muted">(share this with the student — it won't be shown again)</span>`;
+            }
+          } catch (err) {
+            alert(err.message);
+          } finally {
+            btn.disabled = false;
+          }
+        });
+      });
   } catch (err) {
     list.innerHTML = alertBox(err.message);
   }
@@ -443,6 +592,13 @@ async function viewAdminContent() {
           <div class="field"><label>Title</label><input type="text" name="title" required /></div>
           <div class="field"><label>Description</label><input type="text" name="description" /></div>
           <div class="field">
+            <label>Status</label>
+            <select name="status">
+              <option value="active">Active — students can enter it</option>
+              <option value="pending">Pending — locked, students can't enter it yet</option>
+            </select>
+          </div>
+          <div class="field">
             <label>Chapter image (optional)</label>
             <input type="file" name="imageFile" accept="image/*" id="chapterImageInput" />
             <img id="chapterImagePreview" class="image-preview" style="display:none" />
@@ -454,106 +610,187 @@ async function viewAdminContent() {
       <div id="chapterList" class="list"></div>
     </div>`;
 
-  const imgInput = document.getElementById('chapterImageInput');
-  const imgPreview = document.getElementById('chapterImagePreview');
-  imgInput.addEventListener('change', () => {
+  const imgInput = document.getElementById("chapterImageInput");
+  const imgPreview = document.getElementById("chapterImagePreview");
+  imgInput.addEventListener("change", () => {
     const file = imgInput.files[0];
-    if (!file) { imgPreview.style.display = 'none'; return; }
+    if (!file) {
+      imgPreview.style.display = "none";
+      return;
+    }
     imgPreview.src = URL.createObjectURL(file);
-    imgPreview.style.display = 'block';
+    imgPreview.style.display = "block";
   });
 
-  document.getElementById('chapterForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const alertDiv = document.getElementById('chapterFormAlert');
-    alertDiv.innerHTML = '';
-    try {
-      let image = '';
-      const file = imgInput.files[0];
-      if (file) {
-        const uploaded = await Api.uploadFile('/uploads/image', file, 'image');
-        image = uploaded.url;
+  document
+    .getElementById("chapterForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const alertDiv = document.getElementById("chapterFormAlert");
+      alertDiv.innerHTML = "";
+      try {
+        let image = "";
+        const file = imgInput.files[0];
+        if (file) {
+          const uploaded = await Api.uploadFile(
+            "/uploads/image",
+            file,
+            "image",
+          );
+          image = uploaded.url;
+        }
+        await Api.post("/chapters", {
+          title: fd.get("title"),
+          description: fd.get("description"),
+          image,
+          status: fd.get("status"),
+        });
+        e.target.reset();
+        imgPreview.style.display = "none";
+        loadAdminChapters();
+      } catch (err) {
+        alertDiv.innerHTML = alertBox(err.message);
       }
-      await Api.post('/chapters', { title: fd.get('title'), description: fd.get('description'), image });
-      e.target.reset();
-      imgPreview.style.display = 'none';
-      loadAdminChapters();
-    } catch (err) {
-      alertDiv.innerHTML = alertBox(err.message);
-    }
-  });
+    });
 
   loadAdminChapters();
 }
 
 async function loadAdminChapters() {
-  const box = document.getElementById('chapterList');
-  const chapters = await Api.get('/chapters');
+  const box = document.getElementById("chapterList");
+  const chapters = await Api.get("/chapters");
   if (!chapters.length) {
     box.innerHTML = `<div class="empty-state">No chapters yet — add one above.</div>`;
     return;
   }
-  box.innerHTML = chapters.map((c) => `
+  box.innerHTML = chapters
+    .map((c) => {
+      const isActive = c.status === "active";
+      return `
     <div class="card">
       <div class="card-row">
         <div style="display:flex;align-items:center;gap:14px;">
-          ${c.image ? `<img class="chapter-thumb" src="${escapeHtml(c.image)}" alt="" />` : ''}
+          ${c.image ? `<img class="chapter-thumb" src="${escapeHtml(c.image)}" alt="" />` : ""}
           <h3 style="margin:0">${escapeHtml(c.title)}</h3>
+          <span class="badge badge-${isActive ? "approved" : "pending"}">${isActive ? "Active" : "Locked"}</span>
         </div>
-        <button class="btn btn-danger btn-small" data-del-chapter="${c._id}">Delete chapter</button>
+        <div>
+          <button class="btn btn-secondary btn-small" data-toggle-chapter="${c._id}" data-next="${isActive ? "pending" : "active"}">
+            ${isActive ? "🔒 Lock chapter" : "🔓 Activate chapter"}
+          </button>
+          <button class="btn btn-danger btn-small" data-del-chapter="${c._id}">Delete chapter</button>
+        </div>
       </div>
-      ${c.description ? `<p>${escapeHtml(c.description)}</p>` : ''}
+      ${c.description ? `<p>${escapeHtml(c.description)}</p>` : ""}
       <div id="lessons-${c._id}"></div>
       <details class="mt-16">
         <summary class="muted">Add a lesson to this chapter</summary>
         <form class="lesson-form mt-16" data-chapter="${c._id}">
           <div class="field"><label>Lesson title</label><input type="text" name="title" required /></div>
+          <div class="field">
+            <label>Status</label>
+            <select name="status">
+              <option value="active">Active — students can enter it</option>
+              <option value="pending">Pending — locked, students can't enter it yet</option>
+            </select>
+          </div>
           <button class="btn btn-secondary btn-small" type="submit">Add lesson</button>
         </form>
       </details>
-    </div>`).join('');
+    </div>`;
+    })
+    .join("");
 
   chapters.forEach((c) => loadAdminLessons(c._id));
 
-  box.querySelectorAll('.lesson-form').forEach((form) => {
-    form.addEventListener('submit', async (e) => {
+  box.querySelectorAll(".lesson-form").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
-      await Api.post('/lessons', { chapter: form.dataset.chapter, title: fd.get('title') });
+      await Api.post("/lessons", {
+        chapter: form.dataset.chapter,
+        title: fd.get("title"),
+        status: fd.get("status"),
+      });
       form.reset();
       loadAdminLessons(form.dataset.chapter);
     });
   });
 
-  box.querySelectorAll('[data-del-chapter]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      if (!confirm('Delete this chapter and its content reference? Lessons inside it will be orphaned.')) return;
-      await Api.del('/chapters/' + btn.dataset.delChapter);
+  box.querySelectorAll("[data-toggle-chapter]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      try {
+        await Api.put("/chapters/" + btn.dataset.toggleChapter, {
+          status: btn.dataset.next,
+        });
+        loadAdminChapters();
+      } catch (err) {
+        alert(err.message);
+        btn.disabled = false;
+      }
+    });
+  });
+
+  box.querySelectorAll("[data-del-chapter]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (
+        !confirm(
+          "Delete this chapter and its content reference? Lessons inside it will be orphaned.",
+        )
+      )
+        return;
+      await Api.del("/chapters/" + btn.dataset.delChapter);
       loadAdminChapters();
     });
   });
 }
 
 async function loadAdminLessons(chapterId) {
-  const box = document.getElementById('lessons-' + chapterId);
+  const box = document.getElementById("lessons-" + chapterId);
   if (!box) return;
-  const lessons = await Api.get('/lessons?chapter=' + chapterId);
+  const lessons = await Api.get("/lessons?chapter=" + chapterId);
   box.innerHTML = lessons.length
-    ? `<div class="list mt-16">` + lessons.map((l) => `
+    ? `<div class="list mt-16">` +
+      lessons
+        .map((l) => {
+          const isActive = l.status === "active";
+          return `
         <div class="item-link" style="display:flex;justify-content:space-between;align-items:center;">
-          <span>${escapeHtml(l.title)}</span>
+          <span>${escapeHtml(l.title)} <span class="badge badge-${isActive ? "approved" : "pending"}">${isActive ? "Active" : "Locked"}</span></span>
           <span>
+            <button class="btn btn-secondary btn-small" data-toggle-lesson="${l._id}" data-next="${isActive ? "pending" : "active"}" data-chapter="${chapterId}">
+              ${isActive ? "🔒 Lock" : "🔓 Activate"}
+            </button>
             <a class="btn btn-secondary btn-small" href="#/admin/lessons/${l._id}">Manage homework</a>
             <button class="btn btn-danger btn-small" data-del-lesson="${l._id}" data-chapter="${chapterId}">Delete</button>
           </span>
-        </div>`).join('') + `</div>`
+        </div>`;
+        })
+        .join("") +
+      `</div>`
     : `<p class="muted">No lessons yet.</p>`;
 
-  box.querySelectorAll('[data-del-lesson]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      if (!confirm('Delete this lesson?')) return;
-      await Api.del('/lessons/' + btn.dataset.delLesson);
+  box.querySelectorAll("[data-toggle-lesson]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      try {
+        await Api.put("/lessons/" + btn.dataset.toggleLesson, {
+          status: btn.dataset.next,
+        });
+        loadAdminLessons(btn.dataset.chapter);
+      } catch (err) {
+        alert(err.message);
+        btn.disabled = false;
+      }
+    });
+  });
+
+  box.querySelectorAll("[data-del-lesson]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Delete this lesson?")) return;
+      await Api.del("/lessons/" + btn.dataset.delLesson);
       loadAdminLessons(btn.dataset.chapter);
     });
   });
@@ -625,70 +862,91 @@ async function viewAdminLesson(lessonId) {
       <div id="hwList" class="list"></div>
     </div>`;
 
-  document.getElementById('hwMetaForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    await Api.post('/homework', { lesson: lessonId, title: fd.get('title'), instructions: fd.get('instructions'), questions: [] });
-    e.target.reset();
-    loadAdminHomeworkList(lessonId);
-  });
-
-  document.getElementById('importForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const alertDiv = document.getElementById('importAlert');
-    alertDiv.innerHTML = '';
-    const file = document.getElementById('importFileInput').files[0];
-    if (!file) return;
-
-    try {
-      const content = await file.text();
-      const target = fd.get('target');
-      const payload = { content };
-      if (target === 'new') {
-        payload.lesson = lessonId;
-        payload.title = fd.get('title');
-      } else {
-        payload.homeworkId = target;
-      }
-      const result = await Api.post('/homework/import', payload);
-      let msg = `Imported ${result.imported} question${result.imported === 1 ? '' : 's'}.`;
-      if (result.warnings && result.warnings.length) {
-        msg += ' Some lines needed attention: ' + result.warnings.join(' ');
-      }
-      alertDiv.innerHTML = alertBox(msg, 'success');
+  document
+    .getElementById("hwMetaForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      await Api.post("/homework", {
+        lesson: lessonId,
+        title: fd.get("title"),
+        instructions: fd.get("instructions"),
+        questions: [],
+      });
       e.target.reset();
       loadAdminHomeworkList(lessonId);
-    } catch (err) {
-      alertDiv.innerHTML = alertBox(err.message + (err.details ? ' ' + err.details.join(' ') : ''));
-    }
-  });
+    });
+
+  document
+    .getElementById("importForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const alertDiv = document.getElementById("importAlert");
+      alertDiv.innerHTML = "";
+      const file = document.getElementById("importFileInput").files[0];
+      if (!file) return;
+
+      try {
+        const content = await file.text();
+        const target = fd.get("target");
+        const payload = { content };
+        if (target === "new") {
+          payload.lesson = lessonId;
+          payload.title = fd.get("title");
+        } else {
+          payload.homeworkId = target;
+        }
+        const result = await Api.post("/homework/import", payload);
+        let msg = `Imported ${result.imported} question${result.imported === 1 ? "" : "s"}.`;
+        if (result.warnings && result.warnings.length) {
+          msg += " Some lines needed attention: " + result.warnings.join(" ");
+        }
+        alertDiv.innerHTML = alertBox(msg, "success");
+        e.target.reset();
+        loadAdminHomeworkList(lessonId);
+      } catch (err) {
+        alertDiv.innerHTML = alertBox(
+          err.message + (err.details ? " " + err.details.join(" ") : ""),
+        );
+      }
+    });
 
   loadAdminHomeworkList(lessonId);
 }
 
 async function loadAdminHomeworkList(lessonId) {
-  const box = document.getElementById('hwList');
-  const list = await Api.get('/homework?lesson=' + lessonId);
+  const box = document.getElementById("hwList");
+  const list = await Api.get("/homework?lesson=" + lessonId);
 
-  const targetSelect = document.getElementById('importTarget');
+  const targetSelect = document.getElementById("importTarget");
   if (targetSelect) {
     const current = targetSelect.value;
-    targetSelect.innerHTML = `<option value="new">A new homework</option>` +
-      list.map((h) => `<option value="${h._id}">Add to: ${escapeHtml(h.title)}</option>`).join('');
-    if ([...targetSelect.options].some((o) => o.value === current)) targetSelect.value = current;
+    targetSelect.innerHTML =
+      `<option value="new">A new homework</option>` +
+      list
+        .map(
+          (h) =>
+            `<option value="${h._id}">Add to: ${escapeHtml(h.title)}</option>`,
+        )
+        .join("");
+    if ([...targetSelect.options].some((o) => o.value === current))
+      targetSelect.value = current;
     targetSelect.onchange = () => {
-      document.getElementById('newTitleField').style.display = targetSelect.value === 'new' ? '' : 'none';
+      document.getElementById("newTitleField").style.display =
+        targetSelect.value === "new" ? "" : "none";
     };
   }
 
   box.innerHTML = list.length
-    ? list.map((h) => `
+    ? list
+        .map(
+          (h) => `
         <div class="card">
           <div class="card-row">
             <div>
               <div class="item-title">${escapeHtml(h.title)}</div>
-              <div class="item-meta">${h.questions.length} question${h.questions.length === 1 ? '' : 's'}</div>
+              <div class="item-meta">${h.questions.length} question${h.questions.length === 1 ? "" : "s"}</div>
             </div>
             <div>
               <button class="btn btn-danger btn-small" data-del-hw="${h._id}">Delete</button>
@@ -714,92 +972,106 @@ async function loadAdminHomeworkList(lessonId) {
               <button class="btn btn-secondary btn-small" type="submit">Add question</button>
             </form>
           </details>
-        </div>`).join('')
+        </div>`,
+        )
+        .join("")
     : `<div class="empty-state">No homework yet — create one above.</div>`;
 
   list.forEach((h) => renderAdminQuestions(h));
 
-  box.querySelectorAll('.q-form').forEach((form) => {
-    form.addEventListener('submit', async (e) => {
+  box.querySelectorAll(".q-form").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
       const hwId = form.dataset.hw;
-      const hw = await Api.get('/homework/' + hwId);
-      const options = String(fd.get('options') || '').split('\n').map((s) => s.trim()).filter(Boolean);
+      const hw = await Api.get("/homework/" + hwId);
+      const options = String(fd.get("options") || "")
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
       hw.questions.push({
-        type: fd.get('type'),
-        text: fd.get('text'),
-        points: Number(fd.get('points')) || 1,
+        type: fd.get("type"),
+        text: fd.get("text"),
+        points: Number(fd.get("points")) || 1,
         options,
-        correctAnswer: fd.get('correctAnswer') || '',
+        correctAnswer: fd.get("correctAnswer") || "",
       });
-      await Api.put('/homework/' + hwId, { questions: hw.questions });
+      await Api.put("/homework/" + hwId, { questions: hw.questions });
       form.reset();
       loadAdminHomeworkList(lessonId);
     });
   });
 
-  box.querySelectorAll('[data-del-hw]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      if (!confirm('Delete this homework?')) return;
-      await Api.del('/homework/' + btn.dataset.delHw);
+  box.querySelectorAll("[data-del-hw]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Delete this homework?")) return;
+      await Api.del("/homework/" + btn.dataset.delHw);
       loadAdminHomeworkList(lessonId);
     });
   });
 }
 
 function renderAdminQuestions(hw) {
-  const box = document.getElementById('q-' + hw._id);
+  const box = document.getElementById("q-" + hw._id);
   if (!box) return;
   if (!hw.questions.length) {
     box.innerHTML = `<p class="muted">No questions yet.</p>`;
     return;
   }
-  box.innerHTML = hw.questions.map((q, i) => `
+  box.innerHTML = hw.questions
+    .map(
+      (q, i) => `
     <div class="question">
       <div class="question-head">
-        <span>${i + 1}. ${escapeHtml(q.text)} <span class="muted">(${q.type.replace('_', ' ')})</span></span>
-        <span class="question-points">${q.points} pt${q.points === 1 ? '' : 's'}</span>
+        <span>${i + 1}. ${escapeHtml(q.text)} <span class="muted">(${q.type.replace("_", " ")})</span></span>
+        <span class="question-points">${q.points} pt${q.points === 1 ? "" : "s"}</span>
       </div>
-      ${q.type !== 'essay' ? `<div class="muted">Correct answer: ${escapeHtml(q.correctAnswer)}</div>` : ''}
-    </div>`).join('');
+      ${q.type !== "essay" ? `<div class="muted">Correct answer: ${escapeHtml(q.correctAnswer)}</div>` : ""}
+    </div>`,
+    )
+    .join("");
 }
 
 /* ---------------- admin: essay grading ---------------- */
 
-async function viewAdminGrading(filter = 'pending') {
+async function viewAdminGrading(filter = "pending") {
   app.innerHTML = `
     <div class="view-wide">
       <h1>Submissions</h1>
       <div class="topnav" style="margin-bottom:16px;justify-content:flex-start;gap:8px;">
-        <button class="btn btn-small ${filter === 'pending' ? 'btn-accent' : 'btn-secondary'}" id="tabPending">Needs grading</button>
-        <button class="btn btn-small ${filter === 'all' ? 'btn-accent' : 'btn-secondary'}" id="tabAll">All submissions</button>
+        <button class="btn btn-small ${filter === "pending" ? "btn-accent" : "btn-secondary"}" id="tabPending">Needs grading</button>
+        <button class="btn btn-small ${filter === "all" ? "btn-accent" : "btn-secondary"}" id="tabAll">All submissions</button>
       </div>
       <div id="list" class="list"></div>
     </div>`;
-  document.getElementById('tabPending').onclick = () => viewAdminGrading('pending');
-  document.getElementById('tabAll').onclick = () => viewAdminGrading('all');
+  document.getElementById("tabPending").onclick = () =>
+    viewAdminGrading("pending");
+  document.getElementById("tabAll").onclick = () => viewAdminGrading("all");
 
-  const list = document.getElementById('list');
+  const list = document.getElementById("list");
   try {
-    const query = filter === 'pending' ? '?status=pending_review' : '';
-    const submissions = await Api.get('/admin/submissions' + query);
+    const query = filter === "pending" ? "?status=pending_review" : "";
+    const submissions = await Api.get("/admin/submissions" + query);
     if (!submissions.length) {
-      list.innerHTML = `<div class="empty-state">${filter === 'pending' ? 'Nothing waiting for review right now.' : 'No submissions yet.'}</div>`;
+      list.innerHTML = `<div class="empty-state">${filter === "pending" ? "Nothing waiting for review right now." : "No submissions yet."}</div>`;
       return;
     }
-    list.innerHTML = submissions.map((s) => `
+    list.innerHTML = submissions
+      .map(
+        (s) => `
       <a class="item-link" href="#/admin/grading/${s._id}">
         <div class="card-row">
           <div>
             <div class="item-title">${escapeHtml(s.student.name)} — ${escapeHtml(s.homework.title)}</div>
             <div class="item-meta">Submitted ${new Date(s.submittedAt).toLocaleString()}</div>
           </div>
-          <span class="badge badge-${s.status === 'graded' ? 'graded' : 'pending'}">
-            ${s.status === 'graded' ? (s.autoScore + s.manualScore) + '/' + s.totalPoints : 'Needs grading'}
+          <span class="badge badge-${s.status === "graded" ? "graded" : "pending"}">
+            ${s.status === "graded" ? s.autoScore + s.manualScore + "/" + s.totalPoints : "Needs grading"}
           </span>
         </div>
-      </a>`).join('');
+      </a>`,
+      )
+      .join("");
   } catch (err) {
     list.innerHTML = alertBox(err.message);
   }
@@ -807,9 +1079,9 @@ async function viewAdminGrading(filter = 'pending') {
 
 async function viewAdminGradeSubmission(submissionId) {
   app.innerHTML = `<div class="view"><p class="eyebrow"><a href="#/admin/grading">← Grading queue</a></p><div id="content">Loading…</div></div>`;
-  const content = document.getElementById('content');
+  const content = document.getElementById("content");
   try {
-    const s = await Api.get('/admin/submissions/' + submissionId);
+    const s = await Api.get("/admin/submissions/" + submissionId);
     const hw = s.homework;
 
     content.innerHTML = `
@@ -822,24 +1094,30 @@ async function viewAdminGradeSubmission(submissionId) {
       </div>
       <p class="muted">${escapeHtml(hw.title)}</p>
       <form id="gradeForm" class="card">
-        ${hw.questions.map((q) => {
-          const ans = s.answers.find((a) => String(a.question) === String(q._id));
-          const noteHtml = ans && ans.studentNote ? `<div class="student-note-box">📝 Student's note: ${escapeHtml(ans.studentNote)}</div>` : '';
-          if (q.type !== 'essay') {
-            return `
+        ${hw.questions
+          .map((q) => {
+            const ans = s.answers.find(
+              (a) => String(a.question) === String(q._id),
+            );
+            const noteHtml =
+              ans && ans.studentNote
+                ? `<div class="student-note-box">📝 Student's note: ${escapeHtml(ans.studentNote)}</div>`
+                : "";
+            if (q.type !== "essay") {
+              return `
               <div class="question">
                 <div class="question-head"><strong>${escapeHtml(q.text)}</strong><span class="question-points">${q.points} pt</span></div>
-                <div class="muted">Answer: ${escapeHtml(ans ? ans.answerText : '')}</div>
-                <div class="result-mark ${ans && ans.isCorrect ? 'result-correct' : 'result-incorrect'}">
+                <div class="muted">Answer: ${escapeHtml(ans ? ans.answerText : "")}</div>
+                <div class="result-mark ${ans && ans.isCorrect ? "result-correct" : "result-incorrect"}">
                   Auto-graded: ${ans ? ans.pointsAwarded : 0}/${q.points}
                 </div>
                 ${noteHtml}
               </div>`;
-          }
-          return `
+            }
+            return `
             <div class="question">
               <div class="question-head"><strong>${escapeHtml(q.text)}</strong><span class="question-points">${q.points} pt max</span></div>
-              <div class="muted">Answer: ${escapeHtml(ans ? ans.answerText : '')}</div>
+              <div class="muted">Answer: ${escapeHtml(ans ? ans.answerText : "")}</div>
               ${noteHtml}
               <div class="field mt-16">
                 <label>Points to award</label>
@@ -847,31 +1125,38 @@ async function viewAdminGradeSubmission(submissionId) {
               </div>
               <div class="field">
                 <label>Feedback (optional)</label>
-                <textarea name="feedback_${q._id}">${escapeHtml(ans ? ans.teacherFeedback : '')}</textarea>
+                <textarea name="feedback_${q._id}">${escapeHtml(ans ? ans.teacherFeedback : "")}</textarea>
               </div>
             </div>`;
-        }).join('')}
+          })
+          .join("")}
         <div id="gradeAlert"></div>
         <button class="btn btn-accent mt-16" type="submit">Save grade</button>
       </form>`;
 
-    document.getElementById('gradeForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const grades = hw.questions
-        .filter((q) => q.type === 'essay')
-        .map((q) => ({
-          questionId: q._id,
-          points: Number(fd.get('points_' + q._id)) || 0,
-          feedback: fd.get('feedback_' + q._id) || '',
-        }));
-      try {
-        await Api.post('/admin/submissions/' + submissionId + '/grade', { grades });
-        go('/admin/grading');
-      } catch (err) {
-        document.getElementById('gradeAlert').innerHTML = alertBox(err.message);
-      }
-    });
+    document
+      .getElementById("gradeForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const grades = hw.questions
+          .filter((q) => q.type === "essay")
+          .map((q) => ({
+            questionId: q._id,
+            points: Number(fd.get("points_" + q._id)) || 0,
+            feedback: fd.get("feedback_" + q._id) || "",
+          }));
+        try {
+          await Api.post("/admin/submissions/" + submissionId + "/grade", {
+            grades,
+          });
+          go("/admin/grading");
+        } catch (err) {
+          document.getElementById("gradeAlert").innerHTML = alertBox(
+            err.message,
+          );
+        }
+      });
   } catch (err) {
     content.innerHTML = alertBox(err.message);
   }
@@ -892,7 +1177,7 @@ function viewProfile() {
         <div id="avatarPreviewWrap">${avatarImg}</div>
         <div>
           <div class="item-title">${escapeHtml(u.name)}</div>
-          <div class="item-meta">${escapeHtml(u.email)} · ${u.role === 'admin' ? 'Admin' : 'Student'}</div>
+          <div class="item-meta">${escapeHtml(u.email)} · ${u.role === "admin" ? "Admin" : "Student"}</div>
           <form id="avatarForm" class="mt-16">
             <input type="file" name="avatar" id="avatarInput" accept="image/*" />
             <div id="avatarAlert" class="mt-16"></div>
@@ -902,20 +1187,25 @@ function viewProfile() {
       </div>
     </div>`;
 
-  document.getElementById('avatarForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const file = document.getElementById('avatarInput').files[0];
-    const alertDiv = document.getElementById('avatarAlert');
-    if (!file) { alertDiv.innerHTML = alertBox('Choose an image first.'); return; }
-    try {
-      const result = await Api.uploadFile('/auth/avatar', file, 'avatar');
-      state.user.avatar = result.avatar;
-      viewProfile();
-      renderNav();
-    } catch (err) {
-      alertDiv.innerHTML = alertBox(err.message);
-    }
-  });
+  document
+    .getElementById("avatarForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const file = document.getElementById("avatarInput").files[0];
+      const alertDiv = document.getElementById("avatarAlert");
+      if (!file) {
+        alertDiv.innerHTML = alertBox("Choose an image first.");
+        return;
+      }
+      try {
+        const result = await Api.uploadFile("/auth/avatar", file, "avatar");
+        state.user.avatar = result.avatar;
+        viewProfile();
+        renderNav();
+      } catch (err) {
+        alertDiv.innerHTML = alertBox(err.message);
+      }
+    });
 }
 
 /* ---------------- admin: results ---------------- */
@@ -937,41 +1227,56 @@ async function viewAdminResults() {
       <div id="resultsTable"></div>
     </div>`;
 
-  const chapterSelect = document.getElementById('resultsChapter');
-  const homeworkSelect = document.getElementById('resultsHomework');
-  const table = document.getElementById('resultsTable');
+  const chapterSelect = document.getElementById("resultsChapter");
+  const homeworkSelect = document.getElementById("resultsHomework");
+  const table = document.getElementById("resultsTable");
 
-  const chapters = await Api.get('/chapters');
-  chapterSelect.innerHTML = '<option value="">Choose a chapter</option>' +
-    chapters.map((c) => `<option value="${c._id}">${escapeHtml(c.title)}</option>`).join('');
+  const chapters = await Api.get("/chapters");
+  chapterSelect.innerHTML =
+    '<option value="">Choose a chapter</option>' +
+    chapters
+      .map((c) => `<option value="${c._id}">${escapeHtml(c.title)}</option>`)
+      .join("");
 
-  chapterSelect.addEventListener('change', async () => {
-    table.innerHTML = '';
+  chapterSelect.addEventListener("change", async () => {
+    table.innerHTML = "";
     homeworkSelect.innerHTML = '<option value="">Loading…</option>';
     homeworkSelect.disabled = true;
     if (!chapterSelect.value) {
-      homeworkSelect.innerHTML = '<option value="">Choose a chapter first</option>';
+      homeworkSelect.innerHTML =
+        '<option value="">Choose a chapter first</option>';
       return;
     }
-    const lessons = await Api.get('/lessons?chapter=' + chapterSelect.value);
+    const lessons = await Api.get("/lessons?chapter=" + chapterSelect.value);
     const options = [];
     for (const lesson of lessons) {
-      const hwList = await Api.get('/homework?lesson=' + lesson._id);
-      hwList.forEach((h) => options.push({ id: h._id, label: `${lesson.title} — ${h.title}` }));
+      const hwList = await Api.get("/homework?lesson=" + lesson._id);
+      hwList.forEach((h) =>
+        options.push({ id: h._id, label: `${lesson.title} — ${h.title}` }),
+      );
     }
     if (!options.length) {
-      homeworkSelect.innerHTML = '<option value="">No homework in this chapter yet</option>';
+      homeworkSelect.innerHTML =
+        '<option value="">No homework in this chapter yet</option>';
       return;
     }
     homeworkSelect.disabled = false;
-    homeworkSelect.innerHTML = '<option value="">Choose homework</option>' +
-      options.map((o) => `<option value="${o.id}">${escapeHtml(o.label)}</option>`).join('');
+    homeworkSelect.innerHTML =
+      '<option value="">Choose homework</option>' +
+      options
+        .map((o) => `<option value="${o.id}">${escapeHtml(o.label)}</option>`)
+        .join("");
   });
 
-  homeworkSelect.addEventListener('change', async () => {
-    if (!homeworkSelect.value) { table.innerHTML = ''; return; }
+  homeworkSelect.addEventListener("change", async () => {
+    if (!homeworkSelect.value) {
+      table.innerHTML = "";
+      return;
+    }
     table.innerHTML = '<p class="muted">Loading…</p>';
-    const submissions = await Api.get('/admin/submissions?homework=' + homeworkSelect.value);
+    const submissions = await Api.get(
+      "/admin/submissions?homework=" + homeworkSelect.value,
+    );
     if (!submissions.length) {
       table.innerHTML = `<div class="empty-state">No one has submitted this yet.</div>`;
       return;
@@ -988,7 +1293,9 @@ async function viewAdminResults() {
             </tr>
           </thead>
           <tbody>
-            ${submissions.map((s) => `
+            ${submissions
+              .map(
+                (s) => `
               <tr>
                 <td style="padding:10px;border-bottom:1px solid var(--line);">
                   <div style="display:flex;align-items:center;gap:10px;">
@@ -1000,14 +1307,38 @@ async function viewAdminResults() {
                   </div>
                 </td>
                 <td style="padding:10px;border-bottom:1px solid var(--line);">
-                  <span class="badge badge-${s.status === 'graded' ? 'graded' : 'pending'}">${s.status === 'graded' ? 'Graded' : 'Needs grading'}</span>
+                  <span class="badge badge-${s.status === "graded" ? "graded" : "pending"}">${s.status === "graded" ? "Graded" : "Needs grading"}</span>
                 </td>
                 <td style="padding:10px;border-bottom:1px solid var(--line);">${s.autoScore + s.manualScore}/${s.totalPoints}</td>
-                <td style="padding:10px;border-bottom:1px solid var(--line);"><a class="btn btn-secondary btn-small" href="#/admin/grading/${s._id}">View</a></td>
-              </tr>`).join('')}
+                <td style="padding:10px;border-bottom:1px solid var(--line);white-space:nowrap;">
+                  <a class="btn btn-secondary btn-small" href="#/admin/grading/${s._id}">View</a>
+                  <button class="btn btn-danger btn-small" data-retake="${s._id}">Allow retake</button>
+                </td>
+              </tr>`,
+              )
+              .join("")}
           </tbody>
         </table>
       </div>`;
+
+    table.querySelectorAll("[data-retake]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (
+          !confirm(
+            "Delete this student's answers and let them re-answer this homework from scratch? This can't be undone.",
+          )
+        )
+          return;
+        btn.disabled = true;
+        try {
+          await Api.del("/admin/submissions/" + btn.dataset.retake);
+          homeworkSelect.dispatchEvent(new Event("change"));
+        } catch (err) {
+          alert(err.message);
+          btn.disabled = false;
+        }
+      });
+    });
   });
 }
 
@@ -1015,7 +1346,7 @@ async function viewAdminResults() {
 
 function viewHome() {
   if (!state.user) return viewLogin();
-  if (state.user.role === 'admin') return viewAdminPending();
+  if (state.user.role === "admin") return viewAdminPending();
   return viewChapters();
 }
 
@@ -1026,31 +1357,46 @@ const routes = [
   { pattern: /^\/login$/, view: () => viewLogin() },
   { pattern: /^\/register$/, view: () => viewRegister() },
   { pattern: /^\/chapters$/, view: () => guardStudent(viewChapters) },
-  { pattern: /^\/chapters\/([^/]+)$/, view: (id) => guardStudent(() => viewLessons(id)) },
-  { pattern: /^\/lessons\/([^/]+)$/, view: (id) => guardStudent(() => viewHomeworkList(id)) },
-  { pattern: /^\/homework\/([^/]+)$/, view: (id) => guardStudent(() => viewHomeworkTake(id)) },
+  {
+    pattern: /^\/chapters\/([^/]+)$/,
+    view: (id) => guardStudent(() => viewLessons(id)),
+  },
+  {
+    pattern: /^\/lessons\/([^/]+)$/,
+    view: (id) => guardStudent(() => viewHomeworkList(id)),
+  },
+  {
+    pattern: /^\/homework\/([^/]+)$/,
+    view: (id) => guardStudent(() => viewHomeworkTake(id)),
+  },
   { pattern: /^\/results$/, view: () => guardStudent(viewResults) },
   { pattern: /^\/profile$/, view: () => guardStudent(viewProfile) },
   { pattern: /^\/admin$/, view: () => guardAdmin(viewAdminPending) },
   { pattern: /^\/admin\/content$/, view: () => guardAdmin(viewAdminContent) },
-  { pattern: /^\/admin\/lessons\/([^/]+)$/, view: (id) => guardAdmin(() => viewAdminLesson(id)) },
+  {
+    pattern: /^\/admin\/lessons\/([^/]+)$/,
+    view: (id) => guardAdmin(() => viewAdminLesson(id)),
+  },
   { pattern: /^\/admin\/grading$/, view: () => guardAdmin(viewAdminGrading) },
-  { pattern: /^\/admin\/grading\/([^/]+)$/, view: (id) => guardAdmin(() => viewAdminGradeSubmission(id)) },
+  {
+    pattern: /^\/admin\/grading\/([^/]+)$/,
+    view: (id) => guardAdmin(() => viewAdminGradeSubmission(id)),
+  },
   { pattern: /^\/admin\/results$/, view: () => guardAdmin(viewAdminResults) },
 ];
 
 function guardStudent(fn) {
-  if (!state.user) return go('/login');
+  if (!state.user) return go("/login");
   return fn();
 }
 function guardAdmin(fn) {
-  if (!state.user || state.user.role !== 'admin') return go('/login');
+  if (!state.user || state.user.role !== "admin") return go("/login");
   return fn();
 }
 
 function router() {
   renderNav();
-  const path = location.hash.slice(1) || '/';
+  const path = location.hash.slice(1) || "/";
   for (const r of routes) {
     const m = path.match(r.pattern);
     if (m) return r.view(...m.slice(1));
@@ -1058,55 +1404,58 @@ function router() {
   app.innerHTML = `<div class="empty-state">Page not found. <a href="#/">Go home</a></div>`;
 }
 
-window.addEventListener('hashchange', router);
+window.addEventListener("hashchange", router);
 
 /* ---------------- music player (playlist) ---------------- */
 
 const PLAYLIST = [
-  { file: '/audio/study-1.mp3', name: 'Track 1' },
-  { file: '/audio/study-2.mp3', name: 'Track 2' },
-  { file: '/audio/study-3.mp3', name: 'Track 3' },
-  { file: '/audio/study-4.mp3', name: 'Track 4' },
-  { file: '/audio/study-5.mp3', name: 'Track 5' },
+  { file: "/audio/study-1.mp3", name: "Track 1" },
+  { file: "/audio/study-2.mp3", name: "Track 2" },
+  { file: "/audio/study-3.mp3", name: "Track 3" },
+  { file: "/audio/study-4.mp3", name: "Track 4" },
+  { file: "/audio/study-5.mp3", name: "Track 5" },
 ];
 
-const audio = document.getElementById('studyAudio');
-const musicBtn = document.getElementById('musicToggle');
-const musicIconPlay = document.getElementById('musicIconPlay');
-const musicIconPause = document.getElementById('musicIconPause');
-const musicTrackName = document.getElementById('musicTrackName');
-let currentTrack = Number(localStorage.getItem('musicTrack')) || 0;
+const audio = document.getElementById("studyAudio");
+const musicBtn = document.getElementById("musicToggle");
+const musicIconPlay = document.getElementById("musicIconPlay");
+const musicIconPause = document.getElementById("musicIconPause");
+const musicTrackName = document.getElementById("musicTrackName");
+let currentTrack = Number(localStorage.getItem("musicTrack")) || 0;
 if (currentTrack < 0 || currentTrack >= PLAYLIST.length) currentTrack = 0;
 
 function loadTrack(index, autoplay) {
-  currentTrack = ((index % PLAYLIST.length) + PLAYLIST.length) % PLAYLIST.length;
-  localStorage.setItem('musicTrack', currentTrack);
+  currentTrack =
+    ((index % PLAYLIST.length) + PLAYLIST.length) % PLAYLIST.length;
+  localStorage.setItem("musicTrack", currentTrack);
   audio.src = PLAYLIST[currentTrack].file;
   musicTrackName.textContent = PLAYLIST[currentTrack].name;
   if (autoplay) audio.play().catch(() => {});
 }
 
 function setPlayingUI(playing) {
-  musicBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
-  musicIconPlay.style.display = playing ? 'none' : '';
-  musicIconPause.style.display = playing ? '' : 'none';
+  musicBtn.setAttribute("aria-pressed", playing ? "true" : "false");
+  musicIconPlay.style.display = playing ? "none" : "";
+  musicIconPause.style.display = playing ? "" : "none";
 }
 
 loadTrack(currentTrack, false);
 
-musicBtn.addEventListener('click', () => {
+musicBtn.addEventListener("click", () => {
   if (audio.paused) {
     audio.play().catch(() => {});
   } else {
     audio.pause();
   }
 });
-audio.addEventListener('play', () => setPlayingUI(true));
-audio.addEventListener('pause', () => setPlayingUI(false));
+audio.addEventListener("play", () => setPlayingUI(true));
+audio.addEventListener("pause", () => setPlayingUI(false));
 let musicSkipAttempts = 0;
-audio.addEventListener('playing', () => { musicSkipAttempts = 0; });
-audio.addEventListener('ended', () => loadTrack(currentTrack + 1, true));
-audio.addEventListener('error', () => {
+audio.addEventListener("playing", () => {
+  musicSkipAttempts = 0;
+});
+audio.addEventListener("ended", () => loadTrack(currentTrack + 1, true));
+audio.addEventListener("error", () => {
   // A track file is missing/broken — move on, but stop after a full lap
   // through the playlist so we never loop forever with no valid files.
   musicSkipAttempts++;
@@ -1115,15 +1464,19 @@ audio.addEventListener('error', () => {
   }
 });
 
-document.getElementById('musicNext').addEventListener('click', () => loadTrack(currentTrack + 1, !audio.paused));
-document.getElementById('musicPrev').addEventListener('click', () => loadTrack(currentTrack - 1, !audio.paused));
+document
+  .getElementById("musicNext")
+  .addEventListener("click", () => loadTrack(currentTrack + 1, !audio.paused));
+document
+  .getElementById("musicPrev")
+  .addEventListener("click", () => loadTrack(currentTrack - 1, !audio.paused));
 
 /* ---------------- boot ---------------- */
 
 (async function boot() {
   if (Api.token()) {
     try {
-      state.user = await Api.get('/auth/me');
+      state.user = await Api.get("/auth/me");
     } catch (_) {
       Api.clearToken();
     }

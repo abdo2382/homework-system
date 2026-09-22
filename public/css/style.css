@@ -1,27 +1,32 @@
 /* ---------- Design tokens ---------- */
 :root {
-  --paper: #F6F4EE;       /* page background — soft parchment */
-  --surface: #FDFCFA;     /* card / raised surface */
-  --ink: #23302B;         /* primary text — deep pine */
-  --ink-soft: #57665F;    /* secondary text */
-  --ink-faint: #8B968F;   /* tertiary / placeholder text */
-  --line: #DEDACE;        /* hairline borders / dividers */
-  --sage: #6E8F7C;        /* quiet secondary accent (success, correct) */
-  --sage-dim: #E3EAE3;
-  --amber: #B78A34;       /* primary accent — warm lamp light */
-  --amber-dim: #F1E4C6;
-  --brick: #AF5B4E;       /* muted warning / reject / incorrect */
-  --brick-dim: #F3E0DB;
+  --paper: #f6f4ee; /* page background — soft parchment */
+  --surface: #fdfcfa; /* card / raised surface */
+  --ink: #23302b; /* primary text — deep pine */
+  --ink-soft: #57665f; /* secondary text */
+  --ink-faint: #8b968f; /* tertiary / placeholder text */
+  --line: #dedace; /* hairline borders / dividers */
+  --sage: #6e8f7c; /* quiet secondary accent (success, correct) */
+  --sage-dim: #e3eae3;
+  --amber: #b78a34; /* primary accent — warm lamp light */
+  --amber-dim: #f1e4c6;
+  --brick: #af5b4e; /* muted warning / reject / incorrect */
+  --brick-dim: #f3e0db;
 
   --font-head: "Fraunces", Georgia, serif;
-  --font-body: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body:
+    "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --radius: 8px;
   --shadow: 0 1px 2px rgba(35, 48, 43, 0.06);
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   margin: 0;
@@ -33,21 +38,42 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--font-head);
   font-weight: 600;
   line-height: 1.15;
   margin: 0 0 0.4em;
   color: var(--ink);
 }
-h1 { font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.6rem); font-weight: 500; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.15rem; }
+h1 {
+  font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.6rem);
+  font-weight: 500;
+}
+h2 {
+  font-size: 1.5rem;
+}
+h3 {
+  font-size: 1.15rem;
+}
 
-p { margin: 0 0 1em; color: var(--ink-soft); max-width: 62ch; }
-a { color: inherit; }
+p {
+  margin: 0 0 1em;
+  color: var(--ink-soft);
+  max-width: 62ch;
+}
+a {
+  color: inherit;
+}
 
-button, input, select, textarea { font-family: inherit; font-size: 1rem; }
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 1rem;
+}
 
 :focus-visible {
   outline: 2px solid var(--amber);
@@ -55,7 +81,10 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* ---------- Top bar ---------- */
@@ -82,11 +111,14 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   color: var(--ink);
 }
 .brand-mark {
-  width: 34px; height: 34px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: var(--amber);
   color: var(--surface);
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-head);
   font-size: 0.9rem;
   flex-shrink: 0;
@@ -102,7 +134,8 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   gap: 4px;
   align-items: center;
 }
-.topnav a, .topnav button {
+.topnav a,
+.topnav button {
   padding: 8px 12px;
   border-radius: var(--radius);
   color: var(--ink-soft);
@@ -112,8 +145,15 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   cursor: pointer;
   font-size: 0.95rem;
 }
-.topnav a:hover, .topnav button:hover { background: var(--sage-dim); color: var(--ink); }
-.topnav .active { color: var(--ink); background: var(--amber-dim); }
+.topnav a:hover,
+.topnav button:hover {
+  background: var(--sage-dim);
+  color: var(--ink);
+}
+.topnav .active {
+  color: var(--ink);
+  background: var(--amber-dim);
+}
 
 .music-player {
   display: flex;
@@ -128,22 +168,33 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   border: none;
   background: none;
   color: var(--ink-faint);
-  width: 28px; height: 28px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
-.music-btn:hover { color: var(--ink); background: var(--sage-dim); }
+.music-btn:hover {
+  color: var(--ink);
+  background: var(--sage-dim);
+}
 .music-toggle {
   border: none;
   background: var(--ink);
   color: var(--paper);
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
-.music-toggle[aria-pressed="true"] { background: var(--amber); }
+.music-toggle[aria-pressed="true"] {
+  background: var(--amber);
+}
 .music-track-name {
   font-size: 0.78rem;
   color: var(--ink-faint);
@@ -151,7 +202,9 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   display: none;
 }
 @media (min-width: 640px) {
-  .music-track-name { display: inline; }
+  .music-track-name {
+    display: inline;
+  }
 }
 
 .nav-avatar {
@@ -193,8 +246,12 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   margin: 0 auto;
   padding: 40px 20px 80px;
 }
-.view { max-width: 640px; }
-.view-wide { max-width: 980px; }
+.view {
+  max-width: 640px;
+}
+.view-wide {
+  max-width: 980px;
+}
 
 .eyebrow {
   color: var(--ink-faint);
@@ -218,7 +275,11 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   justify-content: space-between;
   gap: 16px;
 }
-.list { display: flex; flex-direction: column; gap: 10px; }
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
 .item-link {
   display: block;
@@ -229,9 +290,17 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   color: var(--ink);
   background: var(--surface);
 }
-.item-link:hover { border-color: var(--amber); }
-.item-title { font-weight: 500; }
-.item-meta { color: var(--ink-faint); font-size: 0.88rem; margin-top: 2px; }
+.item-link:hover {
+  border-color: var(--amber);
+}
+.item-title {
+  font-weight: 500;
+}
+.item-meta {
+  color: var(--ink-faint);
+  font-size: 0.88rem;
+  margin-top: 2px;
+}
 
 .chapter-card {
   display: flex;
@@ -271,7 +340,9 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   background: var(--surface);
   transition: border-color 0.15s ease;
 }
-.chapter-cover-card:hover { border-color: var(--amber); }
+.chapter-cover-card:hover {
+  border-color: var(--amber);
+}
 .chapter-cover {
   height: 130px;
   background-size: cover;
@@ -286,7 +357,31 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   font-size: 2.4rem;
   color: var(--amber);
 }
-.chapter-cover-body { padding: 14px 16px; }
+.chapter-cover-body {
+  padding: 14px 16px;
+}
+
+/* Locked (pending) chapters/lessons — visible but not enterable */
+.chapter-cover-card.is-locked,
+.item-link.is-locked {
+  cursor: not-allowed;
+  opacity: 0.65;
+  filter: grayscale(0.4);
+}
+.chapter-cover-card.is-locked:hover,
+.item-link.is-locked:hover {
+  border-color: var(--line);
+}
+.chapter-cover-card.is-locked .chapter-cover {
+  filter: grayscale(0.5);
+}
+.lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+}
+
 .image-preview {
   width: 88px;
   height: 88px;
@@ -298,7 +393,9 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
 }
 
 /* ---------- Forms ---------- */
-.field { margin-bottom: 16px; }
+.field {
+  margin-bottom: 16px;
+}
 .field label {
   display: block;
   font-size: 0.88rem;
@@ -315,8 +412,13 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   background: var(--surface);
   color: var(--ink);
 }
-.field textarea { resize: vertical; min-height: 90px; }
-.field input:focus, .field textarea:focus, .field select:focus {
+.field textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
   border-color: var(--amber);
 }
 
@@ -333,16 +435,30 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   font-weight: 500;
   text-decoration: none;
 }
-.btn:hover { opacity: 0.9; }
+.btn:hover {
+  opacity: 0.9;
+}
 .btn-secondary {
   background: var(--surface);
   color: var(--ink);
   border-color: var(--line);
 }
-.btn-accent { background: var(--amber); color: var(--surface); }
-.btn-danger { background: var(--brick); color: var(--surface); }
-.btn-small { padding: 6px 12px; font-size: 0.85rem; }
-.btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.btn-accent {
+  background: var(--amber);
+  color: var(--surface);
+}
+.btn-danger {
+  background: var(--brick);
+  color: var(--surface);
+}
+.btn-small {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* ---------- Badges ---------- */
 .badge {
@@ -352,9 +468,19 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   font-size: 0.78rem;
   font-weight: 500;
 }
-.badge-pending { background: var(--amber-dim); color: #7A5A1E; }
-.badge-approved, .badge-graded { background: var(--sage-dim); color: #3C5A48; }
-.badge-rejected { background: var(--brick-dim); color: #8A3F34; }
+.badge-pending {
+  background: var(--amber-dim);
+  color: #7a5a1e;
+}
+.badge-approved,
+.badge-graded {
+  background: var(--sage-dim);
+  color: #3c5a48;
+}
+.badge-rejected {
+  background: var(--brick-dim);
+  color: #8a3f34;
+}
 
 /* ---------- Alerts ---------- */
 .alert {
@@ -363,38 +489,70 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
   font-size: 0.92rem;
   margin-bottom: 16px;
 }
-.alert-error { background: var(--brick-dim); color: #7A3226; }
-.alert-success { background: var(--sage-dim); color: #33513F; }
+.alert-error {
+  background: var(--brick-dim);
+  color: #7a3226;
+}
+.alert-success {
+  background: var(--sage-dim);
+  color: #33513f;
+}
 
 /* ---------- Question blocks ---------- */
 .question {
   padding: 18px 0;
   border-top: 1px solid var(--line);
 }
-.question:first-child { border-top: none; padding-top: 0; }
+.question:first-child {
+  border-top: none;
+  padding-top: 0;
+}
 .question-head {
   display: flex;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 10px;
 }
-.question-points { color: var(--ink-faint); font-size: 0.85rem; white-space: nowrap; }
+.question-points {
+  color: var(--ink-faint);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
 .option-row {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 0;
 }
-.result-mark { font-size: 0.85rem; margin-top: 6px; }
-.result-correct { color: #3C5A48; }
-.result-incorrect { color: #8A3F34; }
-.result-pending { color: var(--ink-faint); }
+.result-mark {
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+.result-correct {
+  color: #3c5a48;
+}
+.result-incorrect {
+  color: #8a3f34;
+}
+.result-pending {
+  color: var(--ink-faint);
+}
 
 /* ---------- Utility ---------- */
-.muted { color: var(--ink-faint); }
-.mt-16 { margin-top: 16px; }
-.section-gap { margin-top: 32px; }
-.hr { border: none; border-top: 1px solid var(--line); margin: 24px 0; }
+.muted {
+  color: var(--ink-faint);
+}
+.mt-16 {
+  margin-top: 16px;
+}
+.section-gap {
+  margin-top: 32px;
+}
+.hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 24px 0;
+}
 .empty-state {
   padding: 40px 20px;
   text-align: center;
@@ -404,14 +562,19 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
 }
 
 /* Optional per-question note a student can leave */
-.note-field { margin-top: 10px; }
+.note-field {
+  margin-top: 10px;
+}
 .note-field summary {
   cursor: pointer;
   color: var(--ink-faint);
   font-size: 0.85rem;
   user-select: none;
 }
-.note-field textarea { margin-top: 8px; min-height: 60px; }
+.note-field textarea {
+  margin-top: 8px;
+  min-height: 60px;
+}
 .student-note-box {
   margin-top: 10px;
   padding: 10px 12px;
@@ -422,9 +585,24 @@ button, input, select, textarea { font-family: inherit; font-size: 1rem; }
 }
 
 @keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.item-link, .chapter-cover-card { animation: fadeSlideIn 0.3s ease both; }
-.item-link { transition: border-color 0.15s ease, transform 0.15s ease; }
-.item-link:hover { transform: translateY(-1px); }
+.item-link,
+.chapter-cover-card {
+  animation: fadeSlideIn 0.3s ease both;
+}
+.item-link {
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+.item-link:hover {
+  transform: translateY(-1px);
+}
