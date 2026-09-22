@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Eng. Abdelrahman Alaa — Homework System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="#/" class="brand">
+        <span class="brand-mark">EA</span>
+        <span class="brand-name">Eng. Abdelrahman Alaa</span>
+      </a>
+      <nav class="topnav" id="topnav"></nav>
+      <div class="music-player" id="musicPlayer">
+        <button id="musicPrev" class="music-btn" title="Previous track">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 5v14L8 12l11-7z" fill="currentColor"/><rect x="5" y="5" width="2" height="14" fill="currentColor"/></svg>
+        </button>
+        <button id="musicToggle" class="music-toggle" title="Play/pause study music" aria-pressed="false">
+          <svg id="musicIconPlay" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="musicIconPause" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+        </button>
+        <button id="musicNext" class="music-btn" title="Next track">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 5v14l11-7L5 5z" fill="currentColor"/><rect x="17" y="5" width="2" height="14" fill="currentColor"/></svg>
+        </button>
+        <span id="musicTrackName" class="music-track-name"></span>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="app"></main>
+
+  <audio id="studyAudio" preload="none"></audio>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
