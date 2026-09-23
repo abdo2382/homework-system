@@ -14,11 +14,14 @@ const router = express.Router();
 |--------------------------------------------------------------------------
 | Any authenticated user
 |
-| Admin:
-|   Can see all chapters.
+| Admin and normal users can see all chapters.
 |
-| Normal user:
-|   Can only see published chapters.
+| The "status" field controls whether the chapter
+| can be opened:
+|
+| active  -> can open
+| pending -> locked
+| locked  -> locked
 |--------------------------------------------------------------------------
 */
 
@@ -26,9 +29,9 @@ router.get(
   "/",
   requireAuth,
   asyncHandler(async (req, res) => {
-    const filter = req.user.role === "admin" ? {} : { published: true };
-
-    const chapters = await Chapter.find(filter).sort({
+    // Show ALL chapters to authenticated users.
+    // Do NOT filter by published.
+    const chapters = await Chapter.find({}).sort({
       order: 1,
       createdAt: 1,
     });
@@ -92,6 +95,7 @@ router.post(
       });
     }
 
+    // Only allow valid chapter statuses.
     const safeStatus = ["active", "pending", "locked"].includes(status)
       ? status
       : "active";
@@ -100,8 +104,13 @@ router.post(
       title,
       description,
       order: order || 0,
+
+      // If frontend doesn't send published,
+      // default to true.
       published: published ?? true,
+
       image,
+
       status: safeStatus,
     });
 
