@@ -5,8 +5,6 @@ const asyncHandler = require("../middleware/asyncHandler");
 
 const router = express.Router();
 
-const ALLOWED_STATUSES = ["active", "pending"];
-
 // GET /api/chapters — any approved user
 router.get(
   "/",
@@ -17,15 +15,7 @@ router.get(
       order: 1,
       createdAt: 1,
     });
-    // Legacy documents created before the `status` field existed won't have
-    // it in the DB. Mongoose only applies schema defaults to brand-new
-    // documents, not to ones hydrated from a stored record missing the
-    // field, so normalize it here as a safety net.
-    const normalized = chapters.map((c) => {
-      if (!c.status) c.status = "active";
-      return c;
-    });
-    res.json(normalized);
+    res.json(chapters);
   }),
 );
 
@@ -37,7 +27,6 @@ router.get(
   asyncHandler(async (req, res) => {
     const chapter = await Chapter.findById(req.params.id);
     if (!chapter) return res.status(404).json({ error: "Chapter not found." });
-    if (!chapter.status) chapter.status = "active";
     res.json(chapter);
   }),
 );
@@ -50,29 +39,17 @@ router.post(
   asyncHandler(async (req, res) => {
     const { title, description, order, published, image, status } = req.body;
     if (!title) return res.status(400).json({ error: "Title is required." });
-
-    // If the frontend didn't send a status, don't silently fall back to the
-    // schema default (locked). Explicitly resolve it here so the value we
-    // send is always what we intend.
-    let resolvedStatus = "active";
-    if (status !== undefined) {
-      if (!ALLOWED_STATUSES.includes(status)) {
-        return res
-          .status(400)
-          .json({
-            error: `status must be one of: ${ALLOWED_STATUSES.join(", ")}`,
-          });
-      }
-      resolvedStatus = status;
-    }
-
+    // Only ever lock a chapter if 'pending' was explicitly sent — anything else
+    // (missing, null, empty string, a typo) falls back to 'active' instead of
+    // silently creating a chapter nobody can enter.
+    const safeStatus = status === "pending" ? "pending" : "active";
     const chapter = await Chapter.create({
       title,
       description,
       order: order || 0,
       published,
       image,
-      status: resolvedStatus,
+      status: safeStatus,
     });
     res.status(201).json(chapter);
   }),
@@ -84,21 +61,14 @@ router.put(
   requireAuth,
   requireAdmin,
   asyncHandler(async (req, res) => {
-    const { status } = req.body;
-
-    // Guard against an invalid status value overwriting a good one, and
-    // avoid blindly trusting req.body for fields we care about.
-    if (status !== undefined && !ALLOWED_STATUSES.includes(status)) {
-      return res
-        .status(400)
-        .json({
-          error: `status must be one of: ${ALLOWED_STATUSES.join(", ")}`,
-        });
+    const update = { ...req.body };
+    // Ignore an invalid/missing status instead of letting it overwrite a good
+    // value with null (e.g. if a client sends an incomplete request body).
+    if (update.status !== "active" && update.status !== "pending") {
+      delete update.status;
     }
-
-    const chapter = await Chapter.findByIdAndUpdate(req.params.id, req.body, {
+    const chapter = await Chapter.findByIdAndUpdate(req.params.id, update, {
       new: true,
-      runValidators: true,
     });
     if (!chapter) return res.status(404).json({ error: "Chapter not found." });
     res.json(chapter);

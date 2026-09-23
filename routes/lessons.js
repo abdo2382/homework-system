@@ -54,13 +54,14 @@ router.post(
     if (!chapter || !title) {
       return res.status(400).json({ error: "chapter and title are required." });
     }
+    const safeStatus = status === "pending" ? "pending" : "active";
     const lesson = await Lesson.create({
       chapter,
       title,
       description,
       order: order || 0,
       published,
-      status,
+      status: safeStatus,
     });
     res.status(201).json(lesson);
   }),
@@ -72,7 +73,11 @@ router.put(
   requireAuth,
   requireAdmin,
   asyncHandler(async (req, res) => {
-    const lesson = await Lesson.findByIdAndUpdate(req.params.id, req.body, {
+    const update = { ...req.body };
+    if (update.status !== "active" && update.status !== "pending") {
+      delete update.status;
+    }
+    const lesson = await Lesson.findByIdAndUpdate(req.params.id, update, {
       new: true,
     });
     if (!lesson) return res.status(404).json({ error: "Lesson not found." });
