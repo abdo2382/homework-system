@@ -100,7 +100,7 @@ router.post(
       title,
       description,
       order: order || 0,
-      published: published ?? false,
+      published: published ?? true,
       image,
       status: safeStatus,
     });
